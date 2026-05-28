@@ -1,13 +1,15 @@
 import { render, screen, act } from "@testing-library/react";
 import { WalletProvider, useWallet } from "./WalletProvider";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import * as freighter from "@stellar/freighter-api";
+import * as freighter from "@/lib/stellar/freighter";
 import * as stellar from "@/lib/stellar";
 
-vi.mock("@stellar/freighter-api", () => ({
+vi.mock("@/lib/stellar/freighter", () => ({
   getPublicKey: vi.fn(),
   signTransaction: vi.fn(),
   isConnected: vi.fn(),
+  isFreighterInstalled: vi.fn(),
+  connectFreighter: vi.fn(),
 }));
 
 vi.mock("@/lib/stellar", () => ({

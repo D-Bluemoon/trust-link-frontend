@@ -33,4 +33,24 @@ export async function signTransaction(
 
   const result = await window.freighter.signTransaction(transaction, networkPassphrase);
   return result.signedTransaction;
+} 
+
+export async function getPublicKey(): Promise<string> {
+  // Reuse connectFreighter to retrieve the public key
+  const connection = await connectFreighter();
+  return connection.publicKey;
 }
+
+export async function isConnected(): Promise<boolean> {
+  if (!window.freighter) {
+    return false;
+  }
+  // Some versions expose isConnected, fallback to true if absent
+  // @ts-ignore
+  if (typeof (window.freighter as any).isConnected === 'function') {
+    // @ts-ignore
+    return (window.freighter as any).isConnected();
+  }
+  return true;
+}
+

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
-import { getPublicKey, signTransaction, isConnected } from "@stellar/freighter-api";
+import { getPublicKey, signTransaction, isConnected, isFreighterInstalled, connectFreighter } from "@/lib/stellar/freighter";
 import { getChallenge, verifyChallenge } from "@/lib/stellar";
 import { jwtDecode } from "jwt-decode";
 
