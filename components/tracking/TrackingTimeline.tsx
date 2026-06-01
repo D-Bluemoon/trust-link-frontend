@@ -4,12 +4,13 @@ import { useState } from "react";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Escrow, EscrowStatus } from "@/types";
 import { CheckCircle2, Circle, Clock, Package, Truck, Home } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useEscrow } from "@/hooks/useEscrow";
 
 interface TrackingStage {
   id: string;
-  title: string;
-  description: string;
+  titleKey: string;
+  descriptionKey: string;
   icon: React.ComponentType<{ className?: string }>;
   statuses: EscrowStatus[];
 }
@@ -17,36 +18,36 @@ interface TrackingStage {
 const TRACKING_STAGES: TrackingStage[] = [
   {
     id: "placed",
-    title: "Order Placed",
-    description: "Your order has been created",
+    titleKey: "tracking.orderPlaced",
+    descriptionKey: "tracking.orderPlacedDesc",
     icon: Clock,
     statuses: ["PENDING", "FUNDED", "SHIPPED", "COMPLETED", "RELEASED"],
   },
   {
     id: "confirmed",
-    title: "Payment Confirmed",
-    description: "Payment received and secured in escrow",
+    titleKey: "tracking.paymentConfirmed",
+    descriptionKey: "tracking.paymentConfirmedDesc",
     icon: CheckCircle2,
     statuses: ["FUNDED", "SHIPPED", "COMPLETED", "RELEASED"],
   },
   {
     id: "shipped",
-    title: "Shipped",
-    description: "Package is on its way",
+    titleKey: "tracking.shipped",
+    descriptionKey: "tracking.shippedDesc",
     icon: Package,
     statuses: ["SHIPPED", "COMPLETED", "RELEASED"],
   },
   {
     id: "delivery",
-    title: "Out for Delivery",
-    description: "Package is out for final delivery",
+    titleKey: "tracking.outForDelivery",
+    descriptionKey: "tracking.outForDeliveryDesc",
     icon: Truck,
     statuses: ["SHIPPED", "COMPLETED", "RELEASED"],
   },
   {
     id: "delivered",
-    title: "Delivered",
-    description: "Package has been delivered",
+    titleKey: "tracking.delivered",
+    descriptionKey: "tracking.deliveredDesc",
     icon: Home,
     statuses: ["COMPLETED", "RELEASED"],
   },
@@ -63,6 +64,9 @@ export default function TrackingTimeline({
   initialEscrow,
   loading = false,
 }: TrackingTimelineProps) {
+  const { t, i18n } = useTranslation();
+  const [escrow, setEscrow] = useState<Escrow>(initialEscrow);
+  const [error, setError] = useState<Error | null>(null);
   const { escrow, isLoading, error: fetchError, refetch } = useEscrow(escrowId, {
     initialData: initialEscrow,
     refreshInterval: 30000,
@@ -70,8 +74,33 @@ export default function TrackingTimeline({
 
   const [localError, setLocalError] = useState<Error | null>(null);
   const [isConfirming, setIsConfirming] = useState(false);
-  const [isRaisingDispute, setIsRaisingDispute] = useState(false);
 
+  // Poll for updates every 30 seconds
+  useEffect(() => {
+    const pollInterval = setInterval(async () => {
+      try {
+        const updatedEscrow = await getEscrow(escrowId);
+        setEscrow(updatedEscrow);
+      } catch (err) {
+        console.error("Failed to poll escrow status:", err);
+      }
+    }, 30000);
+
+    return () => clearInterval(pollInterval);
+  }, [escrowId]);
+
+  const handleConfirmDelivery = async () => {
+    setIsConfirming(true);
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/escrows/${escrowId}/confirm`,
+        { method: "POST" }
+      );
+      if (!response.ok) throw new Error("Failed to confirm delivery");
+      const updatedEscrow = await response.json();
+      setEscrow(updatedEscrow);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error("Failed to confirm delivery"));
   const handleConfirmDelivery = async () => {
     setIsConfirming(true);
     try {
@@ -89,7 +118,6 @@ export default function TrackingTimeline({
   };
 
   const handleRaiseDispute = () => {
-    // Redirect to dispute page
     window.location.href = `/dispute/${escrowId}`;
   };
 
@@ -125,14 +153,14 @@ export default function TrackingTimeline({
   const currentStageIndex = getCurrentStageIndex(activeEscrow.status);
   const isShipped = activeEscrow.status === "SHIPPED";
   const canConfirmDelivery = isShipped;
-  const canRaiseDispute = isShipped; 
+  const canRaiseDispute = isShipped;
 
   return (
     <div className="space-y-6">
       {/* Timeline */}
       <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
         <h2 className="mb-6 text-lg font-semibold text-zinc-950 dark:text-zinc-100">
-          Shipment Status
+          {t("tracking.shipmentStatus")}
         </h2>
         <div className="space-y-6">
           {TRACKING_STAGES.map((stage, index) => {
@@ -165,7 +193,7 @@ export default function TrackingTimeline({
                         : "text-zinc-500 dark:text-zinc-500"
                     }`}
                   >
-                    {stage.title}
+                    {t(stage.titleKey)}
                   </p>
                   <p
                     className={`mt-1 text-sm ${
@@ -174,11 +202,14 @@ export default function TrackingTimeline({
                         : "text-zinc-400 dark:text-zinc-600"
                     }`}
                   >
-                    {stage.description}
+                    {t(stage.descriptionKey)}
                   </p>
                   {isCurrent && activeEscrow.updatedAt && (
                     <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">
-                      {new Date(activeEscrow.updatedAt).toLocaleString()}
+                      {new Intl.DateTimeFormat(i18n.language, {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      }).format(new Date(escrow.updatedAt))}
                     </p>
                   )}
                 </div>
@@ -210,16 +241,15 @@ export default function TrackingTimeline({
               disabled={isConfirming}
               className="flex-1 rounded-2xl bg-green-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-green-700 dark:hover:bg-green-800"
             >
-              {isConfirming ? "Confirming..." : "Confirm Delivery"}
+              {isConfirming ? t("tracking.confirming") : t("tracking.confirmDelivery")}
             </button>
           )}
           {canRaiseDispute && (
             <button
               onClick={handleRaiseDispute}
-              disabled={isRaisingDispute}
-              className="flex-1 rounded-2xl border-2 border-red-600 bg-transparent px-6 py-3 font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-500 dark:text-red-500 dark:hover:bg-red-950"
+              className="flex-1 rounded-2xl border-2 border-red-600 bg-transparent px-6 py-3 font-semibold text-red-600 transition-colors hover:bg-red-50 dark:border-red-500 dark:text-red-500 dark:hover:bg-red-950"
             >
-              Raise a Dispute
+              {t("tracking.raiseDispute")}
             </button>
           )}
         </div>
@@ -229,11 +259,10 @@ export default function TrackingTimeline({
       {activeEscrow.status === "DISPUTED" && (
         <div className="rounded-3xl border border-yellow-200 bg-yellow-50 p-6 dark:border-yellow-900 dark:bg-yellow-950">
           <h3 className="mb-2 text-lg font-semibold text-yellow-900 dark:text-yellow-100">
-            Dispute in Progress
+            {t("tracking.disputeInProgress")}
           </h3>
           <p className="text-sm text-yellow-700 dark:text-yellow-300">
-            A dispute has been raised for this order. Our team is reviewing the case and will
-            resolve it shortly.
+            {t("tracking.disputeMessage")}
           </p>
         </div>
       )}
