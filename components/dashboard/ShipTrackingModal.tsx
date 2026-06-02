@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent, useEffect, useRef } from "react";
+import React, { useState, FormEvent, useEffect, useRef } from "react";
 
 interface ShipTrackingModalProps {
   escrowId: string;
@@ -144,7 +144,7 @@ export default function ShipTrackingModal({
             <input
               id="trackingId"
               value={trackingId}
-              onChange={(event) => setTrackingId(event.target.value)}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setTrackingId(event.target.value)}
               maxLength={64}
               required
               className="mt-2 w-full rounded-3xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 outline-none transition focus:border-black focus:ring-2 focus:ring-black/10 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
@@ -160,7 +160,7 @@ export default function ShipTrackingModal({
             <select
               id="carrier"
               value={carrier}
-              onChange={(event) => setCarrier(event.target.value)}
+              onChange={(event: React.ChangeEvent<HTMLSelectElement>) => setCarrier(event.target.value)}
               className="mt-2 w-full rounded-3xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 outline-none transition focus:border-black focus:ring-2 focus:ring-black/10 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
             >
               <option>Terminal Africa</option>

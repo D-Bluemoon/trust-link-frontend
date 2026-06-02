@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Bell, CheckCheck, Package, Banknote, Truck, ShieldAlert, RotateCcw, CircleCheck, Clock, AlertCircle } from "lucide-react";
 import { useNotifications } from "@/components/providers/NotificationProvider";
@@ -99,7 +99,7 @@ export default function NotificationBell() {
         aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ""}`}
         aria-haspopup="true"
         aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => setOpen((v: boolean) => !v)}
         className="relative flex h-10 w-10 items-center justify-center rounded-full text-zinc-600 transition hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
       >
         <Bell className="h-5 w-5" />
@@ -140,7 +140,7 @@ export default function NotificationBell() {
                 No notifications yet
               </li>
             ) : (
-              preview.map((n) => (
+              preview.map((n: any) => (
                 <li key={n.id}>
                   <Link
                     href={`/escrow/${n.escrowId}`}
@@ -152,12 +152,12 @@ export default function NotificationBell() {
                       !n.read ? "bg-blue-50/60 dark:bg-blue-950/20" : ""
                     }`}
                   >
-                    <span className={`mt-0.5 ${STATUS_COLORS[n.type]}`}>
+                    <span className={`mt-0.5 ${STATUS_COLORS[n.type as EscrowStatus]}`}>
                       <StatusIcon type={n.type} />
                     </span>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-xs font-medium text-zinc-800 dark:text-zinc-200">
-                        {statusLabel(n.type)} — {n.escrowItem}
+                        {statusLabel(n.type as EscrowStatus)} — {n.escrowItem}
                       </p>
                       <p className="mt-0.5 line-clamp-2 text-xs text-zinc-500 dark:text-zinc-400">
                         {n.message}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState, FormEvent, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -60,12 +60,12 @@ export default function DisputeForm({ escrowId }: DisputeFormProps) {
 
     const isValid = await trigger(fieldsToValidate);
     if (isValid) {
-      setCurrentStep((prev) => Math.min(prev + 1, 4));
+      setCurrentStep((prev: number) => Math.min(prev + 1, 4));
     }
   };
 
   const prevStep = () => {
-    setCurrentStep((prev) => Math.max(prev - 1, 1));
+    setCurrentStep((prev: number) => Math.max(prev - 1, 1));
   };
 
   const onSubmit = async (values: DisputeValues) => {
@@ -89,7 +89,7 @@ export default function DisputeForm({ escrowId }: DisputeFormProps) {
   };
 
   const removeEvidence = (index: number) => {
-    const newEvidence = formData.evidence.filter((_, i) => i !== index);
+    const newEvidence = formData.evidence.filter((_: string, i: number) => i !== index);
     setValue("evidence", newEvidence, { shouldValidate: true });
   };
 
@@ -194,7 +194,7 @@ export default function DisputeForm({ escrowId }: DisputeFormProps) {
           {currentStep === 3 && (
             <div className="space-y-6">
               <div
-                onDragOver={(e) => {
+                onDragOver={(e: React.DragEvent) => {
                   e.preventDefault();
                   setIsDragging(true);
                 }}
@@ -286,7 +286,7 @@ export default function DisputeForm({ escrowId }: DisputeFormProps) {
                     Evidence
                   </h3>
                   <div className="flex flex-wrap gap-2">
-                    {formData.evidence.map((_, i) => (
+                    {formData.evidence.map((_: string, i: number) => (
                       <div
                         key={i}
                         className="px-3 py-1 bg-white dark:bg-zinc-800 rounded-full border border-zinc-200 dark:border-zinc-700 text-[10px] font-bold text-[var(--muted)] flex items-center gap-1"
