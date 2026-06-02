@@ -7,6 +7,7 @@ import { CheckCircle2, Circle, Clock, Package, Truck, Home } from "lucide-react"
 import { useTranslation } from "react-i18next";
 import { useEscrow } from "@/hooks/useEscrow";
 import { ConfirmDeliveryButton } from "@/components/escrow/ConfirmDeliveryButton";
+import { track } from "@/lib/analytics";
 
 interface TrackingStage {
   id: string;
@@ -193,6 +194,7 @@ export default function TrackingTimeline({
             onSuccess={() => {
               setLocalError(null);
               refetch();
+              track("delivery_confirmed", { escrowId });
             }}
           />
           <button
