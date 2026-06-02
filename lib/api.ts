@@ -1,4 +1,4 @@
-import { Dispute, Escrow, Tracking } from "@/types";
+import { Dispute, Escrow, Subscription, Tracking } from "@/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -144,6 +144,35 @@ export async function getTracking(escrowId: string): Promise<Tracking> {
   return res.json();
 }
 
+export async function getSubscription(token?: string): Promise<Subscription> {
+  const headers: HeadersInit = {};
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  const res = await fetch(`${API_URL}/subscription`, {
+    cache: 'no-store',
+    headers,
+  });
+  if (!res.ok) {
+    throw new Error('Failed to fetch subscription');
+  }
+  return res.json();
+}
+
+export async function upgradeSubscription(token?: string): Promise<Subscription> {
+  const headers: HeadersInit = { 'Content-Type': 'application/json' };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  const res = await fetch(`${API_URL}/subscription/upgrade`, {
+    method: 'POST',
+    headers,
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Upgrade failed: ${err}`);
+  }
+  return res.json();
 export interface BuyerContactInput {
   email?: string;
   phone?: string;
@@ -193,4 +222,42 @@ export async function patchBuyerContact(escrowId: string, data: BuyerContactInpu
     const err = await res.text();
     throw new Error(`Failed to save contact info: ${err}`);
   }
+}
+
+export interface VendorAnalyticsPoint {
+  date: string;
+  transactionVolume: number;
+  averageOrderValue: number;
+  completionRate: number;
+  disputeRate: number;
+}
+
+export interface VendorAnalyticsResponse {
+  totalTransactionVolume?: number;
+  averageOrderValue?: number;
+  completionRate?: number;
+  disputeRate?: number;
+  periodLabel?: string;
+  generatedAt?: string;
+  dailyMetrics?: VendorAnalyticsPoint[];
+  series?: VendorAnalyticsPoint[];
+  data?: VendorAnalyticsPoint[];
+}
+
+export async function getVendorAnalytics(token?: string): Promise<VendorAnalyticsResponse> {
+  const headers: HeadersInit = {};
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  const res = await fetch(`${API_URL}/vendor/analytics`, {
+    cache: "no-store",
+    headers,
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch vendor analytics");
+  }
+
+  return res.json();
 }

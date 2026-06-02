@@ -164,7 +164,7 @@ export default function PaymentForm({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [txHash, setTxHash] = useState<string | null>(null);
 
-  const isDisconnected = walletStatus !== "connected";
+  const isDisconnected = !isConnected;
 
   const handlePayment = async () => {
     if (isDisconnected) {

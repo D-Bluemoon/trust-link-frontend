@@ -2,6 +2,8 @@ import { getEscrow } from "@/lib/api"
 import { PaymentEscrowClient } from "./PaymentEscrowClient"
 import { Breadcrumb } from "@/components/ui/Breadcrumb"
 import { Accordion } from "@/components/ui/Accordion"
+import { HowItWorks } from "@/components/payment/HowItWorks"
+
 
 interface PayPageProps {
 	params: Promise<{ escrowId: string }>
@@ -46,6 +48,7 @@ export default async function PayPage({ params }: PayPageProps) {
 				<div className="mx-auto max-w-4xl">
 					<Breadcrumb items={breadcrumbItems} className="mb-4" />
 					<PaymentEscrowClient escrow={escrow} escrowId={escrowId} />
+					<HowItWorks />
 					<section className="mt-8">
 						<h2 className="mb-4 text-xl font-semibold text-zinc-950 dark:text-white">
 							Frequently Asked Questions
