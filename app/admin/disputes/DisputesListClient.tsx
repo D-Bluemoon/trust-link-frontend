@@ -5,6 +5,7 @@ import { Dispute } from "@/types";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { formatUSDC } from "@/utils/currency";
 
 type SortField = "date" | "amount" | "status";
 
@@ -99,7 +100,7 @@ export function DisputesListClient() {
                 </div>
                 <div className="space-y-1 text-sm sm:text-right">
                   <p className="font-medium text-zinc-950 dark:text-zinc-100">
-                    {dispute.escrow.amount} USDC
+                    {formatUSDC(dispute.escrow.amount)}
                   </p>
                   <p className="text-zinc-600 dark:text-zinc-400">{dispute.status}</p>
                   <p className="text-xs text-zinc-500">
