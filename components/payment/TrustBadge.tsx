@@ -51,7 +51,10 @@ export function TrustBadge({ contractAddress, className }: TrustBadgeProps) {
 
       <div className="mt-3 flex w-full sm:mt-0 sm:w-auto items-center gap-2 border-t border-emerald-100 pt-3 sm:border-none sm:pt-0 dark:border-emerald-900/50">
         <div className="flex items-center rounded-full border border-zinc-200 bg-white px-3 py-1.5 dark:border-zinc-800 dark:bg-zinc-950">
-          <span className="font-mono text-xs text-zinc-600 dark:text-zinc-400 select-all mr-2">
+          <span 
+            className="font-mono text-xs text-zinc-600 dark:text-zinc-400 select-all mr-2 cursor-help"
+            title={contractAddress}
+          >
             {truncateAddress(contractAddress, 4, 4)}
           </span>
           

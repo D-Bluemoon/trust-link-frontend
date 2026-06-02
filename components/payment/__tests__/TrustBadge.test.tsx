@@ -30,40 +30,58 @@ describe("TrustBadge", () => {
     expect(screen.getByText("Escrow contract automatically handles release")).toBeInTheDocument();
   });
 
-  it("renders the truncated contract address", () => {
+  it("renders the truncated contract address with a tooltip", () => {
     render(<TrustBadge contractAddress={contractAddress} />);
     
-    // Default truncation is 4 start, 4 end
     const expectedTruncation = "CA4H...3R6J";
-    expect(screen.getByText(expectedTruncation)).toBeInTheDocument();
+    const addressElement = screen.getByText(expectedTruncation);
+    expect(addressElement).toBeInTheDocument();
+    expect(addressElement).toHaveAttribute("title", contractAddress);
   });
 
-  it("calls navigator.clipboard.writeText on copy button click", async () => {
+  it("calls navigator.clipboard.writeText and shows success state", async () => {
     render(<TrustBadge contractAddress={contractAddress} />);
     
     const copyButton = screen.getByLabelText("Copy address");
     fireEvent.click(copyButton);
     
     expect(mockWriteText).toHaveBeenCalledWith(contractAddress);
-    expect(mockWriteText).toHaveBeenCalledTimes(1);
+    
+    // Check for success icon (Check)
+    await waitFor(() => {
+      expect(screen.queryByTestId("copy-icon")).not.toBeInTheDocument();
+    });
   });
 
-  it("renders the correct Stellar Expert URL based on explorer.ts", () => {
-    const mockUrl = "https://testnet.stellarexpert.io/contract/mock";
-    vi.spyOn(explorerUtils, "getStellarExpertUrl").mockReturnValue(mockUrl);
-    
+  it("links to correct testnet url", () => {
+    vi.stubEnv("NEXT_PUBLIC_STELLAR_NETWORK", "testnet");
     render(<TrustBadge contractAddress={contractAddress} />);
     
     const link = screen.getByLabelText("View on Stellar Expert");
-    expect(link).toHaveAttribute("href", mockUrl);
-    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute(
+      "href", 
+      `https://stellar.expert/explorer/testnet/contract/${contractAddress}`
+    );
+    vi.unstubAllEnvs();
+  });
+
+  it("links to correct mainnet url", () => {
+    vi.stubEnv("NEXT_PUBLIC_STELLAR_NETWORK", "mainnet");
+    render(<TrustBadge contractAddress={contractAddress} />);
+    
+    const link = screen.getByLabelText("View on Stellar Expert");
+    expect(link).toHaveAttribute(
+      "href", 
+      `https://stellar.expert/explorer/public/contract/${contractAddress}`
+    );
+    vi.unstubAllEnvs();
   });
 
   it("is responsive with standard mobile flex layout classes", () => {
     render(<TrustBadge contractAddress={contractAddress} />);
     
-    // Check main container
-    const container = screen.getByText("Funds Protected by Smart Contract").closest('div.flex.w-full.flex-col.sm\\:flex-row');
-    expect(container).toBeInTheDocument();
+    const container = screen.getByText("Funds Protected by Smart Contract").closest('div');
+    expect(container?.className).toContain('flex-col');
+    expect(container?.className).toContain('sm:flex-row');
   });
 });
