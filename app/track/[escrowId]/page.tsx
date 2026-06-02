@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import ErrorBoundary from "@/components/layout/ErrorBoundary";
 import TrackingTimeline from "@/components/tracking/TrackingTimeline";
 import { getEscrow } from "@/lib/api";
@@ -8,6 +9,9 @@ interface TrackPageProps {
 
 export default async function TrackPage({ params }: TrackPageProps) {
   const { escrowId } = await params;
+  
+  Sentry.setTag("escrow.id", escrowId);
+  Sentry.setContext("tracking", { escrowId });
   
   // Fetch initial escrow data
   let initialEscrow;

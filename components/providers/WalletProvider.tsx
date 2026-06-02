@@ -10,6 +10,7 @@ import {
 import { getChallenge, verifyChallenge } from "@/lib/stellar";
 import { toast } from "sonner";
 import { jwtDecode } from "jwt-decode";
+import * as Sentry from "@sentry/nextjs";
 
 interface WalletContextType {
   publicKey: string | null;
@@ -67,6 +68,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
           const connected = await freighterIsConnected();
           if (connected) {
             setPublicKey(storedPublicKey);
+            Sentry.setUser({ id: storedPublicKey });
             if (storedToken) {
               setToken(storedToken);
             } else {
@@ -99,6 +101,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
       const pubKey = await connectFreighter();
       setPublicKey(pubKey);
+      Sentry.setUser({ id: pubKey });
       if (typeof window !== "undefined") {
         localStorage.setItem(PUBLIC_KEY_STORAGE_KEY, pubKey);
       }
@@ -119,6 +122,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   const disconnect = useCallback(() => {
     setPublicKey(null);
     setToken(null);
+    Sentry.setUser(null);
     if (typeof window !== "undefined") {
       localStorage.removeItem(PUBLIC_KEY_STORAGE_KEY);
       localStorage.removeItem(TOKEN_STORAGE_KEY);

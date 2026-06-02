@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 // Validated at config-load time so `next build` and `next dev` fail immediately
 // with a clear message instead of surfacing a cryptic undefined at runtime.
@@ -93,4 +94,7 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  silent: true,
+  hideSourceMaps: true,
+});
