@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Download } from "lucide-react";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -15,6 +15,8 @@ export default function VendorDashboardList({ loading = false }: { loading?: boo
   const [escrows, setEscrows] = useState<Escrow[] | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const [selectedEscrow, setSelectedEscrow] = useState<Escrow | null>(null);
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
 
   const loadItems = async () => {
     try {
@@ -38,10 +40,29 @@ export default function VendorDashboardList({ loading = false }: { loading?: boo
     );
   };
 
+  // Filter escrows by the selected createdAt date range. An empty bound means
+  // "unbounded" on that side. The `to` bound is inclusive to the end of the day.
+  const filteredEscrows = useMemo(() => {
+    if (!escrows) return [];
+    const start = fromDate ? new Date(`${fromDate}T00:00:00`).getTime() : null;
+    const end = toDate ? new Date(`${toDate}T23:59:59.999`).getTime() : null;
+    return escrows.filter((escrow) => {
+      const created = new Date(escrow.createdAt).getTime();
+      if (start !== null && created < start) return false;
+      if (end !== null && created > end) return false;
+      return true;
+    });
+  }, [escrows, fromDate, toDate]);
+
+  const clearDateFilter = () => {
+    setFromDate("");
+    setToDate("");
+  };
+
   const handleExportCsv = () => {
-    if (!escrows || escrows.length === 0) return;
+    if (filteredEscrows.length === 0) return;
     downloadCsv(
-      escrows,
+      filteredEscrows,
       [
         { key: "id", header: "Escrow ID" },
         { key: "item", header: "Item" },
@@ -97,8 +118,53 @@ export default function VendorDashboardList({ loading = false }: { loading?: boo
           Export CSV
         </button>
       </div>
+
+      {/* Date range filter — narrows the list by escrow creation date. */}
+      <div className="mb-4 flex flex-wrap items-end gap-3">
+        <div className="flex flex-col">
+          <label htmlFor="escrow-from-date" className="mb-1 text-xs font-medium text-zinc-600 dark:text-zinc-400">
+            From
+          </label>
+          <input
+            id="escrow-from-date"
+            type="date"
+            value={fromDate}
+            max={toDate || undefined}
+            onChange={(event) => setFromDate(event.target.value)}
+            className="rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm text-zinc-900 outline-none transition focus:border-black dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+          />
+        </div>
+        <div className="flex flex-col">
+          <label htmlFor="escrow-to-date" className="mb-1 text-xs font-medium text-zinc-600 dark:text-zinc-400">
+            To
+          </label>
+          <input
+            id="escrow-to-date"
+            type="date"
+            value={toDate}
+            min={fromDate || undefined}
+            onChange={(event) => setToDate(event.target.value)}
+            className="rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm text-zinc-900 outline-none transition focus:border-black dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+          />
+        </div>
+        {(fromDate || toDate) && (
+          <button
+            type="button"
+            onClick={clearDateFilter}
+            className="rounded-full border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800"
+          >
+            Clear
+          </button>
+        )}
+      </div>
+
+      {filteredEscrows.length === 0 ? (
+        <p className="rounded-3xl border border-dashed border-zinc-200 bg-white p-6 text-center text-sm text-zinc-600 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400">
+          No escrows match the selected date range.
+        </p>
+      ) : (
       <div className="space-y-4">
-        {escrows.map((escrow) => (
+        {filteredEscrows.map((escrow) => (
           <div key={escrow.id} className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex gap-4">
@@ -151,6 +217,7 @@ export default function VendorDashboardList({ loading = false }: { loading?: boo
           </div>
         ))}
       </div>
+      )}
 
       {selectedEscrow && (
         <ShipTrackingModal

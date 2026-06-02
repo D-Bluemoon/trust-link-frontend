@@ -6,7 +6,7 @@ import OptimizedImage from "@/components/ui/OptimizedImage";
 import { QRCodeCanvas } from "qrcode.react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Copy, Share2, Download } from "lucide-react";
+import { Copy, Share2, Download, X } from "lucide-react";
 import { toast } from "sonner";
 
 async function fetchEscrowLink() {
@@ -64,6 +64,13 @@ export default function EscrowLinkCard({ loading = false }: { loading?: boolean 
     const igUrl = `${link.url}?utm_source=instagram&utm_medium=share`;
     await copyToClipboard(igUrl);
     toast.success("Instagram link copied!");
+  };
+
+  const copyTwitter = async () => {
+    const xUrl = `${link.url}?utm_source=twitter&utm_medium=share`;
+    const text = `Pay securely via TrustLink escrow: ${link.title} (${link.amount}) ${xUrl}`;
+    await navigator.clipboard.writeText(text);
+    toast.success("Tweet text copied!");
   };
 
   const shareWhatsApp = () => {
@@ -127,6 +134,9 @@ export default function EscrowLinkCard({ loading = false }: { loading?: boolean 
           </Button>
           <Button variant="outline" size="icon" onClick={copyInstagram} aria-label="Copy for Instagram">
             <Copy className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="icon" onClick={copyTwitter} aria-label="Copy for Twitter/X" title="Copy for Twitter/X">
+            <X className="h-4 w-4" />
           </Button>
           <Button variant="outline" size="icon" onClick={downloadQR} aria-label="Download QR">
             <Download className="h-4 w-4" />
