@@ -66,14 +66,14 @@ export default function PaymentForm({
         </div>
 
         {error && (
-          <div className="p-4 bg-destructive/10 border border-destructive/20 text-destructive text-sm rounded-2xl flex items-start space-x-3 animate-in fade-in slide-in-from-top-2">
+          <div className="p-4 bg-destructive/10 border border-destructive/20 text-destructive text-sm rounded-2xl flex items-start space-x-3 ">
             <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
             <p>{error}</p>
           </div>
         )}
 
         {hash && (
-          <div className="p-4 bg-success/10 border border-success/20 text-success text-sm rounded-2xl flex items-start space-x-3 animate-in fade-in zoom-in-95">
+          <div className="p-4 bg-success/10 border border-success/20 text-success text-sm rounded-2xl flex items-start space-x-3 ">
             <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5" />
             <div className="space-y-1">
               <p className="font-bold">Payment Confirmed</p>

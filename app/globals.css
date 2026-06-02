@@ -14,14 +14,6 @@
   --border: #E5E7EB;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --muted: #6B7280;
-    --muted-bg: #1F2937;
-    --border: #374151;
-  }
-}
-
 @keyframes timeline-pulse {
   0%, 100% {
     box-shadow: 0 0 0 0 color-mix(in srgb, var(--warning) 60%, transparent);
@@ -41,6 +33,7 @@
   --color-muted: var(--muted);
   --color-muted-bg: var(--muted-bg);
   --color-border: var(--border);
+  --color-destructive: var(--destructive);
 }
 
 @keyframes float {
@@ -56,6 +49,9 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --muted: #6B7280;
+    --muted-bg: #1F2937;
+    --border: #374151;
   }
 }
 
