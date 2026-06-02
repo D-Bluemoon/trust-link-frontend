@@ -11,6 +11,10 @@
  *   - payment_completed
  *   - dispute_raised
  *   - delivery_confirmed
+ *   - link_share_attempt
+ *   - link_shared
+ *   - link_copied
+ *   - qr_code_downloaded
  */
 
 type EventName =
@@ -18,7 +22,11 @@ type EventName =
   | "payment_initiated"
   | "payment_completed"
   | "dispute_raised"
-  | "delivery_confirmed";
+  | "delivery_confirmed"
+  | "link_share_attempt"
+  | "link_shared"
+  | "link_copied"
+  | "qr_code_downloaded";
 
 let posthogInstance: typeof import("posthog-js").default | null = null;
 let initialized = false;

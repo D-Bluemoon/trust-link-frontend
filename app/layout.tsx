@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { WalletProvider } from "@/components/providers/WalletProvider";
+import { SubscriptionProvider } from "@/components/providers/SubscriptionProvider";
 import { NotificationProvider } from "@/components/providers/NotificationProvider";
 import I18nProvider from "@/components/providers/I18nProvider";
 import BottomNav from "@/components/layout/BottomNav";
@@ -11,15 +12,19 @@ import TestnetBanner from "@/components/layout/TestnetBanner";
 import CommandPalette from "@/components/ui/CommandPalette";
 import { ServiceWorkerProvider } from "@/components/providers/ServiceWorkerProvider";
 import { Toaster } from "sonner";
+import CommandPalette from "@/components/ui/CommandPalette";
+import TopProgressBar from "@/components/ui/TopProgressBar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -40,6 +45,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <TopProgressBar />
         <TestnetBanner />
         <ServiceWorkerProvider />
         <a
@@ -49,6 +55,8 @@ export default function RootLayout({
           Skip to content
         </a>
         <WalletProvider>
+          <SubscriptionProvider>
+            <I18nProvider>
           <NotificationProvider>
             <I18nProvider>
               <Navbar />
@@ -58,6 +66,9 @@ export default function RootLayout({
               </main>
               <Footer />
               <BottomNav />
+              <Toaster richColors position="top-right" />
+            </I18nProvider>
+          </SubscriptionProvider>
               <Toaster position="top-right" theme="system" />
             </I18nProvider>
           </NotificationProvider>
