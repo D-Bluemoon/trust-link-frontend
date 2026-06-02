@@ -147,10 +147,12 @@ export default function ShipTrackingModal({
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => setTrackingId(event.target.value)}
               maxLength={64}
               required
+              aria-invalid={!!error}
+              aria-describedby={error ? "tracking-error" : "tracking-hint"}
               className="mt-2 w-full rounded-3xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 outline-none transition focus:border-black focus:ring-2 focus:ring-black/10 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
               placeholder="Enter tracking ID"
             />
-            <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">Required, max 64 characters.</p>
+            <p id="tracking-hint" className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">Required, max 64 characters.</p>
           </div>
 
           <div>
@@ -170,7 +172,7 @@ export default function ShipTrackingModal({
           </div>
 
           {error ? (
-            <div className="rounded-3xl bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950/30 dark:text-red-200">
+            <div id="tracking-error" role="alert" className="rounded-3xl bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950/30 dark:text-red-200">
               {error}
             </div>
           ) : null}
