@@ -27,6 +27,11 @@ interface VendorOnboardingState {
 
 const STORAGE_KEY = "vendor.onboarding.state";
 
+interface ValidationErrors {
+  shopName?: string;
+  description?: string;
+}
+
 const defaultState: VendorOnboardingState = {
   step: 0,
   shopName: "",
@@ -73,6 +78,7 @@ export default function VendorOnboardingWizard() {
   const wallet = useWallet();
   const [state, setState] = useState<VendorOnboardingState>(defaultState);
   const [hydrated, setHydrated] = useState(false);
+  const [errors, setErrors] = useState<ValidationErrors>({});
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -110,6 +116,24 @@ export default function VendorOnboardingWizard() {
 
   const updateField = (field: keyof Omit<VendorOnboardingState, "step" | "completed">, value: string) => {
     setState((current) => ({ ...current, [field]: value }));
+    // Clear error for this field when user types
+    if (errors[field as keyof ValidationErrors]) {
+      setErrors((current) => ({ ...current, [field]: undefined }));
+    }
+  };
+
+  const validateStep1 = (): boolean => {
+    const newErrors: ValidationErrors = {};
+    if (!state.shopName.trim()) {
+      newErrors.shopName = "Shop name is required.";
+    }
+    if (!state.description.trim()) {
+      newErrors.description = "Description is required.";
+    } else if (state.description.trim().length < 20) {
+      newErrors.description = "Description must be at least 20 characters.";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const goToStep = (step: OnboardingStep) => {
@@ -117,11 +141,16 @@ export default function VendorOnboardingWizard() {
   };
 
   const handleNext = () => {
+    if (state.step === 1 && !validateStep1()) {
+      return;
+    }
+
     if (buttonDisabled) {
       return;
     }
 
     setState((current) => ({ ...current, step: Math.min(2, current.step + 1) }));
+    setErrors({});
   };
 
   const handleBack = () => {
@@ -210,10 +239,17 @@ export default function VendorOnboardingWizard() {
                 name="shopName"
                 value={state.shopName}
                 onChange={(event) => updateField("shopName", event.target.value)}
+                aria-invalid={!!errors.shopName}
+                aria-describedby={errors.shopName ? "shopName-error" : undefined}
                 className="mt-2 w-full rounded-3xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 outline-none transition focus:border-black focus:ring-2 focus:ring-black/10 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
                 placeholder="Example: Stellar Craft Co."
                 required
               />
+              {errors.shopName && (
+                <p id="shopName-error" role="alert" className="mt-2 text-sm text-red-600 dark:text-red-400">
+                  {errors.shopName}
+                </p>
+              )}
             </label>
 
             <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
@@ -224,10 +260,22 @@ export default function VendorOnboardingWizard() {
                 value={state.description}
                 onChange={(event) => updateField("description", event.target.value)}
                 rows={5}
+                aria-invalid={!!errors.description}
+                aria-describedby={errors.description ? "description-error" : "description-hint"}
                 className="mt-2 w-full rounded-3xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 outline-none transition focus:border-black focus:ring-2 focus:ring-black/10 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
                 placeholder="Tell buyers why they should choose your products."
                 required
               />
+              {errors.description && (
+                <p id="description-error" role="alert" className="mt-2 text-sm text-red-600 dark:text-red-400">
+                  {errors.description}
+                </p>
+              )}
+              {!errors.description && (
+                <p id="description-hint" className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                  Minimum 20 characters required.
+                </p>
+              )}
             </label>
 
             <div className="grid gap-6 md:grid-cols-2">
