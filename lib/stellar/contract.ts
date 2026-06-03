@@ -15,7 +15,8 @@ export async function submitPayment(amount: string, destination: string) {
     throw new Error("Destination address is required");
   }
 
-  return "b2d8e9f...a1c3b5d7";
+   return "b2d8e9f...a1c3b5d7";
+   }
 import {
   Contract,
   Keypair,
