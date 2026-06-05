@@ -14,6 +14,7 @@ interface DisputeDetailsClientProps {
 
 export function DisputeDetailsClient({ dispute }: DisputeDetailsClientProps) {
   const router = useRouter();
+  const { i18n } = useTranslation();
   const { token } = useWallet();
   const [isResolving, setIsResolving] = useState(false);
   const [showConfirm, setShowConfirm] = useState<'RELEASE_TO_VENDOR' | 'REFUND_BUYER' | null>(null);
@@ -31,16 +32,6 @@ export function DisputeDetailsClient({ dispute }: DisputeDetailsClientProps) {
       setIsResolving(false);
       setShowConfirm(null);
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
   };
 
   return (
@@ -148,7 +139,7 @@ export function DisputeDetailsClient({ dispute }: DisputeDetailsClientProps) {
                   <div className="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-700" />
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
                     <p className="font-medium text-sm">{event.description}</p>
-                    <time className="text-xs text-zinc-500 whitespace-nowrap">{formatDate(event.timestamp)}</time>
+                    <time className="text-xs text-zinc-500 whitespace-nowrap">{formatTimeAgo(event.timestamp, i18n.language)}</time>
                   </div>
                   <p className="text-xs text-zinc-400 mt-1">Status changed to {event.status}</p>
                 </div>

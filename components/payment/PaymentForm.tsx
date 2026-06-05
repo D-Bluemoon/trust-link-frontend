@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import useWallet from "@/hooks/useWallet";
-<<<<<<< feature/tracking-timeline-storybook
-=======
+<<<<<<< HEAD
 import { submitPayment } from "@/lib/stellar/contract";
 import { Loader2, ShieldCheck, CheckCircle2, AlertCircle } from "lucide-react";
 import { formatUSDC } from "@/utils/currency";
@@ -69,7 +68,7 @@ export default function PaymentForm({
         </div>
 
         {error && (
-          <div className="p-4 bg-destructive/10 border border-destructive/20 text-destructive text-sm rounded-2xl flex items-start space-x-3 ">
+          <div role="alert" className="p-4 bg-destructive/10 border border-destructive/20 text-destructive text-sm rounded-2xl flex items-start space-x-3 ">
             <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
             <p>{error}</p>
           </div>
@@ -109,9 +108,10 @@ export default function PaymentForm({
       </div>
 import React, { useState } from "react";
 import useWallet from "@/hooks/useWallet";
->>>>>>> main
+=======
+>>>>>>> origin/main
 import { signTransaction } from "@/lib/stellar/freighter";
-import { getStellarExpertUrl } from "@/lib/explorer";
+import { getStellarExpertTxUrl } from "@/lib/explorer";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { useNetwork } from "@/components/providers/NetworkProvider";
@@ -167,7 +167,7 @@ export default function PaymentForm({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [txHash, setTxHash] = useState<string | null>(null);
 
-  const isDisconnected = walletStatus !== "connected";
+  const isDisconnected = !isConnected;
 
   const handlePayment = async () => {
     if (isDisconnected) {
@@ -261,7 +261,7 @@ export default function PaymentForm({
             Transaction: {truncateHash(txHash)}
           </p>
           <a
-            href={getStellarExpertUrl(txHash, network)}
+            href={getStellarExpertTxUrl(txHash)}
             target="_blank"
             rel="noopener noreferrer"
             className="mt-3 inline-block text-sm font-medium text-green-700 underline hover:text-green-800 dark:text-green-400 dark:hover:text-green-300"
@@ -278,7 +278,7 @@ export default function PaymentForm({
           )}
 
           {formState === "error" && errorMessage && (
-            <div className="rounded-xl bg-red-50 p-3 border border-red-100 dark:bg-red-950/30 dark:border-red-900">
+            <div role="alert" className="rounded-xl bg-red-50 p-3 border border-red-100 dark:bg-red-950/30 dark:border-red-900">
               <p className="text-sm text-red-600 dark:text-red-400">{errorMessage}</p>
             </div>
           )}
@@ -287,7 +287,6 @@ export default function PaymentForm({
             type="button"
             onClick={handlePayment}
             disabled={isDisconnected || isSubmitting}
-            aria-disabled={isDisconnected || isSubmitting}
             className="flex w-full items-center justify-center rounded-full bg-black px-4 py-3 text-sm font-semibold text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-black"
           >
             {isSubmitting ? (

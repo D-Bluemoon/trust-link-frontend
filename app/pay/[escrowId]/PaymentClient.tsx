@@ -7,6 +7,7 @@ import { useWallet } from "@/components/providers/WalletProvider";
 import { useTranslation } from "react-i18next";
 import { formatUSDC } from "@/utils/currency";
 import { track } from "@/lib/analytics";
+import { getStellarExpertTxUrl } from "@/lib/explorer";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
@@ -61,10 +62,18 @@ export default function PaymentClient({ escrow }: { escrow: Escrow }) {
         <p className="mb-1 text-sm text-green-700 dark:text-green-300">{t("payment.txHash")}:</p>
         <p
           data-testid="tx-hash"
-          className="mb-6 break-all rounded-lg bg-white px-4 py-2 font-mono text-sm text-zinc-800 dark:bg-zinc-900 dark:text-zinc-200"
+          className="mb-2 break-all rounded-lg bg-white px-4 py-2 font-mono text-sm text-zinc-800 dark:bg-zinc-900 dark:text-zinc-200"
         >
           {txHash}
         </p>
+        <a
+          href={getStellarExpertTxUrl(txHash)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mb-6 inline-block text-sm font-medium text-green-700 underline hover:text-green-800 dark:text-green-400 dark:hover:text-green-300"
+        >
+          View on Stellar Expert ↗
+        </a>
         <Link
           href={`/track/${escrow.id}`}
           data-testid="track-link"
