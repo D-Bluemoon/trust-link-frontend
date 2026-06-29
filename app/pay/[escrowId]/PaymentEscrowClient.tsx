@@ -7,6 +7,7 @@ import { useWallet } from "@/components/providers/WalletProvider";
 import { connectFreighter, isFreighterInstalled } from "@/lib/stellar/freighter";
 import { patchBuyerContact } from "@/lib/api";
 import { formatUSDC } from "@/utils/currency";
+import { toast } from "sonner";
 
 interface PaymentEscrowClientProps {
   escrow: Escrow;
@@ -88,6 +89,7 @@ export function PaymentEscrowClient({ escrow, escrowId }: PaymentEscrowClientPro
     } catch (caught) {
       const message = caught instanceof Error ? caught.message : "Unable to trigger wallet signature.";
       setError(message);
+      toast.error(message);
     } finally {
       setIsPaying(false);
     }
