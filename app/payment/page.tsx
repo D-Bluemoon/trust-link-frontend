@@ -1,7 +1,13 @@
+import { Suspense } from "react";
 import ErrorBoundary from "@/components/layout/ErrorBoundary";
 import PaymentSection from "@/components/payment/PaymentSection";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { Accordion } from "@/components/ui/Accordion";
+
+export const metadata = {
+  title: "Payment | TrustLink",
+  description: "Make secure escrow payments on the Stellar network. Your funds are protected by smart contracts until delivery is confirmed.",
+};
 
 const faqItems = [
   {
@@ -38,7 +44,9 @@ export default function PaymentPage() {
         <Breadcrumb items={breadcrumbItems} className="mb-4" />
         <h1 className="mb-6 text-3xl font-semibold text-zinc-950 dark:text-white">Payment</h1>
         <ErrorBoundary>
-          <PaymentSection />
+          <Suspense fallback={null}>
+            <PaymentSection />
+          </Suspense>
         </ErrorBoundary>
         <section className="mt-8">
           <h2 className="mb-4 text-xl font-semibold text-zinc-950 dark:text-white">

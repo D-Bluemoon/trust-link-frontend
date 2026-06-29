@@ -10,9 +10,10 @@ import BottomNav from "@/components/layout/BottomNav";
 import Footer from "@/components/layout/Footer";
 import Navbar from "@/components/layout/Navbar";
 import TestnetBanner from "@/components/layout/TestnetBanner";
+import OfflineBanner from "@/components/layout/OfflineBanner";
 import { ServiceWorkerProvider } from "@/components/providers/ServiceWorkerProvider";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { Toaster } from "sonner";
-import CommandPalette from "@/components/ui/CommandPalette";
 import { Suspense } from "react";
 import TopProgressBar from "@/components/ui/TopProgressBar";
 import { ThemeProvider } from "next-themes";
@@ -30,6 +31,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://trustlink.app"),
   title: "TrustLink",
   description: "The Web2 experience. The Web3 guarantee.",
 };
@@ -49,6 +51,12 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      {/* Inline script runs before paint to apply stored theme class without flash */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark')document.documentElement.classList.add('dark');else if(t==='light')document.documentElement.classList.add('light');}catch(e){}})();`,
+        }}
+      />
       <body className="min-h-full flex flex-col">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem storageKey="trustlink-theme">
         <Suspense fallback={null}>
@@ -56,6 +64,7 @@ export default function RootLayout({
         </Suspense>
         <NetworkProvider>
           <ServiceWorkerProvider />
+          <OfflineBanner />
           <TestnetBanner />
           <a
             href="#main-content"

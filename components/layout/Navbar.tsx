@@ -3,6 +3,7 @@
 import { useNetwork } from "@/components/providers/NetworkProvider";
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 export default function Navbar() {
   const { toggleNetwork, isMainnet } = useNetwork();
@@ -45,6 +46,25 @@ export default function Navbar() {
               <Moon className="h-4 w-4" aria-hidden="true" />
             )}
           </button>
+          <ThemeToggle />
+          <button
+          type="button"
+          onClick={toggleNetwork}
+          className="flex items-center gap-2 px-3 py-1 rounded-full border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+          role="switch"
+          aria-checked={isMainnet}
+          aria-label={`Switch to ${isMainnet ? "Testnet" : "Mainnet"}`}
+        >
+          <span
+            className={`h-2 w-2 rounded-full ${
+              isMainnet ? "bg-green-500" : "bg-yellow-500"
+            }`}
+            aria-hidden="true"
+          />
+          <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+            {isMainnet ? "Mainnet" : "Testnet"}
+          </span>
+        </button>
         </div>
       </div>
     </header>

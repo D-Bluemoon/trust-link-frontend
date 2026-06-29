@@ -51,7 +51,7 @@ describe("WalletProvider SEP-10 Flow", () => {
     const mockToken = "jwt-token";
 
     vi.mocked(freighter.isConnected).mockResolvedValue(true);
-    vi.mocked(freighter.getPublicKey).mockResolvedValue(mockPubKey);
+    vi.mocked(freighter.getPublicKey!).mockResolvedValue(mockPubKey);
     vi.mocked(stellar.getChallenge).mockResolvedValue(mockChallenge);
     vi.mocked(freighter.signTransaction).mockResolvedValue(mockSignedXdr);
     vi.mocked(stellar.verifyChallenge).mockResolvedValue(mockToken);
@@ -72,7 +72,7 @@ describe("WalletProvider SEP-10 Flow", () => {
 
   it("handles errors during authentication", async () => {
     vi.mocked(freighter.isConnected).mockResolvedValue(true);
-    vi.mocked(freighter.getPublicKey).mockResolvedValue("GABC123");
+    vi.mocked(freighter.getPublicKey!).mockResolvedValue("GABC123");
     vi.mocked(stellar.getChallenge).mockRejectedValue(new Error("Challenge failed"));
 
     renderWithProviders(<TestComponent />);

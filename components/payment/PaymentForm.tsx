@@ -85,7 +85,7 @@ export default function PaymentForm({
       setFormState("success");
       toast.success("Payment successful");
       onPaymentSuccess?.(hash);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
       let msg = "Network request failed";
 
@@ -168,6 +168,12 @@ export default function PaymentForm({
           <button
             type="button"
             onClick={handlePayment}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                handlePayment();
+              }
+            }}
             disabled={isDisconnected || isSubmitting}
             aria-disabled={isDisconnected || isSubmitting}
             className="flex w-full items-center justify-center rounded-full bg-black px-4 py-3 text-sm font-semibold text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-black"

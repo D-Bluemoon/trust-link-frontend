@@ -26,6 +26,7 @@ interface WalletContextType {
   disconnect: () => void;
   signTransaction: (xdr: string, network?: string) => Promise<string>;
   isLoading: boolean;
+  walletReady: boolean;
   error: string | null;
 }
 
@@ -40,6 +41,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   const jwt = token;
   const [isInstalled, setIsInstalled] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [walletReady, setWalletReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { network } = useNetwork();
 
@@ -60,16 +62,19 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     }
   }, [network]);
 
-  // Check if Freighter is installed and restore session
   useEffect(() => {
+    let isMounted = true;
+
     async function init() {
       const installed = await isFreighterInstalled();
+      if (!isMounted) return;
       setIsInstalled(installed);
       
       const storedPublicKey = typeof window !== "undefined" ? localStorage.getItem(PUBLIC_KEY_STORAGE_KEY) : null;
       if (storedPublicKey && installed) {
         try {
           const connected = await freighterIsConnected();
+          if (!isMounted) return;
           if (connected) {
             setPublicKey(storedPublicKey);
             Sentry.setUser({ id: storedPublicKey });
@@ -84,9 +89,12 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
           console.error("Failed to restore session:", e);
         }
       }
+      if (!isMounted) return;
       setIsLoading(false);
+      setWalletReady(true);
     }
     init();
+    return () => { isMounted = false; };
   }, [authenticate]);
 
   const connect = useCallback(async () => {
@@ -142,7 +150,6 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     }
   }, [stellarNetworkLabel]);
 
-  // Auto-refresh token if it expires
   useEffect(() => {
     if (!token || !publicKey) return;
 
@@ -189,6 +196,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         disconnect,
         signTransaction,
         isLoading,
+        walletReady,
         error,
       }}
     >

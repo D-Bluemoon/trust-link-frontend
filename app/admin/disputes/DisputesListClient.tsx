@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/navigation";
 import { formatUSDC } from "@/utils/currency";
+import FetchErrorState, { getFetchErrorMessage } from "@/components/ui/FetchErrorState";
 
 type SortField = "date" | "amount" | "status";
 
@@ -31,6 +32,7 @@ export function DisputesListClient() {
   const [disputes, setDisputes] = useState<Dispute[]>([]);
 
   useEffect(() => {
+    let isMounted = true;
     const token = window.localStorage.getItem("wallet.jwt");
 
     if (!token) {
@@ -41,16 +43,19 @@ export function DisputesListClient() {
     const loadDisputes = async () => {
       try {
         const data = await getAdminDisputes(token);
-        setDisputes(data);
+        if (isMounted) setDisputes(data);
       } catch (caught) {
-        const message = caught instanceof Error ? caught.message : "Failed to load disputes";
-        setError(message);
+        if (isMounted) {
+          const message = caught instanceof Error ? caught.message : "Failed to load disputes";
+          setError(message);
+        }
       } finally {
-        setIsLoading(false);
+        if (isMounted) setIsLoading(false);
       }
     };
 
     loadDisputes();
+    return () => { isMounted = false; };
   }, [router]);
 
   const sortedDisputes = useMemo(() => sortDisputes(disputes, sortField), [disputes, sortField]);
@@ -83,7 +88,23 @@ export function DisputesListClient() {
       </header>
 
       {isLoading ? <p className="text-sm text-zinc-500" role="status" aria-live="polite">Loading disputes...</p> : null}
-      {error ? <p className="text-sm text-red-600" role="alert" aria-live="assertive">{error}</p> : null}
+      {error ? (
+        <FetchErrorState
+          title="We couldn't load disputes"
+          message={getFetchErrorMessage(error, "Failed to load disputes.")}
+          onRetry={() => {
+            setError(null);
+            setIsLoading(true);
+            void getAdminDisputes(window.localStorage.getItem("wallet.jwt") ?? "")
+              .then(setDisputes)
+              .catch((caught) => {
+                setError(caught instanceof Error ? caught.message : "Failed to load disputes");
+              })
+              .finally(() => setIsLoading(false));
+          }}
+          className="min-h-[160px]"
+        />
+      ) : null}
 
       {!isLoading && !error && sortedDisputes.length === 0 ? (
         <p className="text-sm text-zinc-500" role="status">No open disputes right now.</p>
@@ -96,17 +117,17 @@ export function DisputesListClient() {
               key={dispute.id}
               className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800"
               role="listitem"
-              aria-labelledby={`dispute-${dispute.id}-title`}
+              aria-labelledby={`dispute-title-${dispute.id}`}
             >
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="space-y-1">
                   <p 
-                    id={`dispute-${dispute.id}-title`}
+                    id={`dispute-title-${dispute.id}`}
                     className="text-sm font-medium text-zinc-950 dark:text-zinc-100"
                   >
                     {dispute.escrow.item}
                   </p>
-                  <p className="text-xs text-zinc-500" aria-label={`Escrow ID ${dispute.escrowId}`}>
+                  <p className="text-xs text-zinc-500">
                     Escrow #{dispute.escrowId}
                   </p>
                   <p className="text-sm text-zinc-600 dark:text-zinc-300" aria-label="Dispute reason">
@@ -117,17 +138,17 @@ export function DisputesListClient() {
                   <p className="font-medium text-zinc-950 dark:text-zinc-100">
                     {formatUSDC(dispute.escrow.amount)}
                   </p>
-                  <p className="text-zinc-600 dark:text-zinc-400" aria-label={`Status ${dispute.status}`}>
+                  <p className="text-zinc-600 dark:text-zinc-400">
                     {dispute.status}
                   </p>
-                  <p className="text-xs text-zinc-500" aria-label={`Created on ${new Date(dispute.createdAt).toLocaleString()}`}>
+                  <p className="text-xs text-zinc-500">
                     {new Date(dispute.createdAt).toLocaleString()}
                   </p>
                 </div>
               </div>
 
               <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-xs text-zinc-500" aria-label={`${dispute.evidence.length} evidence links`}>
+                <p className="text-xs text-zinc-500">
                   Evidence links: <span className="font-medium">{dispute.evidence.length}</span>
                 </p>
                 <Link
