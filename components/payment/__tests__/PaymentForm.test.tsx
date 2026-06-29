@@ -30,7 +30,7 @@ vi.mock("@/lib/explorer", () => ({
 
 vi.mock("@/components/providers/NetworkProvider", () => ({
   useNetwork: vi.fn(() => ({ network: "testnet", isTestnet: true, isMainnet: false, toggleNetwork: vi.fn(), setNetwork: vi.fn() })),
-  NetworkProvider: ({ children }: any) => children,
+  NetworkProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
 const defaultProps = {
@@ -47,7 +47,7 @@ const defaultProps = {
 describe("PaymentForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (useWallet as any).mockReturnValue({ isConnected: true });
+    vi.mocked(useWallet).mockReturnValue({ isConnected: true });
   });
 
   it("renders payment summary and shows amount/fee/total correctly", () => {
@@ -60,7 +60,7 @@ describe("PaymentForm", () => {
   });
 
   it("is disabled when wallet is disconnected", () => {
-    (useWallet as any).mockReturnValue({ isConnected: false });
+    vi.mocked(useWallet).mockReturnValue({ isConnected: false });
     render(<PaymentForm {...defaultProps} />);
 
     const button = screen.getByRole("button", { name: /Pay with Freighter/i });
@@ -69,7 +69,7 @@ describe("PaymentForm", () => {
   });
 
   it("shows loading state and prevents duplicate submissions", async () => {
-    (signTransaction as any).mockImplementation(() => new Promise((resolve) => setTimeout(() => resolve("signed_xdr"), 100)));
+    vi.mocked(signTransaction).mockImplementation(() => new Promise((resolve) => setTimeout(() => resolve("signed_xdr"), 100)));
 
     render(<PaymentForm {...defaultProps} />);
     const button = screen.getByRole("button", { name: /Pay with Freighter/i });
@@ -83,7 +83,7 @@ describe("PaymentForm", () => {
 
   it("renders success state with tx hash and explorer link", async () => {
     const onPaymentSuccess = vi.fn();
-    (signTransaction as any).mockResolvedValue("signed_xdr");
+    vi.mocked(signTransaction).mockResolvedValue("signed_xdr");
     
     // We override Math.random to make the hash predictable for the test
     const originalRandom = Math.random;
@@ -114,7 +114,7 @@ describe("PaymentForm", () => {
   });
 
   it("shows error state on failure (wallet rejection)", async () => {
-    (signTransaction as any).mockRejectedValue(new Error("User rejected the transaction"));
+    vi.mocked(signTransaction).mockRejectedValue(new Error("User rejected the transaction"));
 
     render(<PaymentForm {...defaultProps} />);
     const button = screen.getByRole("button", { name: /Pay with Freighter/i });
