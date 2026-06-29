@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import OptimizedImage from "@/components/ui/OptimizedImage";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Copy, Share2, Download, X, MessageCircle, Image } from "lucide-react";
+import { Copy, Download, X, MessageCircle, Image } from "lucide-react";
 import { toast } from "sonner";
 import { formatUSDC } from "@/utils/currency";
 import { track } from "@/lib/analytics";
