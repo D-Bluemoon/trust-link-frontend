@@ -30,7 +30,7 @@ async function fetchEscrowLink() {
     expires: "May 31, 2026",
     escrowId: "1293",
     url: "https://trustlink.example.com/pay/1293",
-    imageUrl: undefined, // Optional: Add escrow item image URL here
+    imageUrl: undefined, // Optional: Add escrow item image URL here also
   };
 }
 
@@ -116,6 +116,7 @@ export default function EscrowLinkCard({
     }
   };
 
+  // Share functions for WhatsApp, Instagram, Twitter/X, and QR code download
   const shareWhatsApp = async () => {
     const text = `Check out this secure escrow payment link: ${link.url}`;
     
