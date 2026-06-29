@@ -3,7 +3,6 @@
 
 import {
   Contract,
-  Keypair,
   TransactionBuilder,
   Networks,
   Operation,
@@ -86,6 +85,21 @@ export interface SorobanContractCallOptions {
   network?: "TESTNET" | "PUBLIC";
   rpcUrl?: string;
   fee?: string;
+}
+
+type ContractErrorResponse = {
+  message?: unknown;
+  type?: unknown;
+  details?: unknown;
+};
+
+type ContractResultResponse<TResult> = {
+  result?: TResult;
+  value?: TResult;
+};
+
+function isRecord(value: unknown): value is Record<PropertyKey, unknown> {
+  return typeof value === "object" && value !== null;
 }
 
 function getNetworkPassphrase(network: "TESTNET" | "PUBLIC") {
@@ -312,7 +326,7 @@ export function isValidContractId(contractId: string): boolean {
 
 /**
  * Parse contract error response
- * @param {any} error - The error from contract invocation
+ * @param {unknown} error - The error from contract invocation
  * @returns {string} Formatted error message
  * @example
  * try {
@@ -322,17 +336,23 @@ export function isValidContractId(contractId: string): boolean {
  *   alert(message);
  * }
  */
-export function parseContractError(error: any): string {
+export function parseContractError(error: unknown): string {
   if (typeof error === "string") {
     return error;
   }
 
-  if (error?.message) {
-    return error.message;
+  if (!isRecord(error)) {
+    return "An unknown error occurred";
   }
 
-  if (error?.type === "ContractError") {
-    return `Contract Error: ${error.details || "Unknown error"}`;
+  const contractError = error as ContractErrorResponse;
+
+  if (contractError.message) {
+    return String(contractError.message);
+  }
+
+  if (contractError.type === "ContractError") {
+    return `Contract Error: ${contractError.details || "Unknown error"}`;
   }
 
   return "An unknown error occurred";
@@ -340,28 +360,36 @@ export function parseContractError(error: any): string {
 
 /**
  * Extract result from contract response
- * @param {any} response - The contract response
- * @returns {any} Parsed result or null
+ * @param {unknown} response - The contract response
+ * @returns Parsed result or null
  * @example
  * const response = await invokeContract();
  * const result = parseContractResult(response);
  * console.log("Contract returned:", result);
  */
-export function parseContractResult(response: any): any {
+export function parseContractResult<TResult = unknown>(
+  response: ContractResultResponse<TResult> | TResult | null | undefined
+): TResult | null {
   if (!response) {
     return null;
   }
 
+  if (!isRecord(response)) {
+    return response;
+  }
+
+  const contractResponse = response as ContractResultResponse<TResult>;
+
   // Handle different response formats
-  if (response.result) {
-    return response.result;
+  if (contractResponse.result !== undefined) {
+    return contractResponse.result;
   }
 
-  if (response.value !== undefined) {
-    return response.value;
+  if (contractResponse.value !== undefined) {
+    return contractResponse.value;
   }
 
-  return response;
+  return response as TResult;
 }
 
 /**
