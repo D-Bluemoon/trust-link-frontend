@@ -22,7 +22,7 @@ import { signTransaction } from "./freighter";
  * @deprecated This is a simulated function for testing purposes
  * @example
  * const txHash = await submitPayment("100", "GXXXXXX...");
- * console.log("Transaction submitted:", txHash);
+ * // Use txHash for transaction tracking or UI display
  */
 export async function submitPayment(amount: string, destination: string) {
   // In a real implementation, this would involve building a transaction
@@ -317,7 +317,7 @@ export function buildContractInvocation(options: ContractCallOptions): string {
  * @returns {boolean} True if valid, false otherwise
  * @example
  * if (isValidContractId("CXXXXXX...")) {
- *   console.log("Valid contract ID");
+ *   buildContractInvocation({ contractId: "CXXXXXX...", ... });
  * }
  */
 export function isValidContractId(contractId: string): boolean {
@@ -367,7 +367,9 @@ export function parseContractError(error: unknown): string {
  * @example
  * const response = await invokeContract();
  * const result = parseContractResult(response);
- * console.log("Contract returned:", result);
+ * if (result) {
+ *   // Process contract return value
+ * }
  */
 export function parseContractResult<TResult = unknown>(
   response: ContractResultResponse<TResult> | TResult | null | undefined
@@ -485,7 +487,7 @@ export function buildContractDeployment(
  * @example
  * const response = await invokeContract();
  * if (isContractSuccess(response)) {
- *   console.log("Contract executed successfully");
+ *   // Handle successful contract execution
  * }
  */
 export function isContractSuccess(response: any): boolean {
