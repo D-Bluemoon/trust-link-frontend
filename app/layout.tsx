@@ -15,6 +15,7 @@ import { ServiceWorkerProvider } from "@/components/providers/ServiceWorkerProvi
 import { Toaster } from "sonner";
 import { Suspense } from "react";
 import TopProgressBar from "@/components/ui/TopProgressBar";
+import { ThemeProvider } from "next-themes";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import CommandPalette from "@/components/ui/CommandPalette";
 
@@ -22,12 +23,14 @@ const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
   display: "swap",
+  preload: true,
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
   display: "swap",
+  preload: true,
 });
 
 export const metadata: Metadata = {
@@ -51,6 +54,19 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        {/*
+          next/font/google self-hosts the woff2 files in the Next.js static
+          bundle, so preconnect to fonts.googleapis.com / fonts.gstatic.com is
+          not needed at runtime.  The font CSS is also inlined at build time
+          (display:swap, preload:true above).
+
+          We still DNS-prefetch the Soroban RPC and API origins so those
+          lookups are already resolved when the first wallet operation fires.
+        */}
+        <link rel="dns-prefetch" href="https://soroban-testnet.stellar.org" />
+        <link rel="dns-prefetch" href="https://horizon-testnet.stellar.org" />
+      </head>
       {/* Inline script runs before paint to apply stored theme class without flash */}
       <script
         dangerouslySetInnerHTML={{
