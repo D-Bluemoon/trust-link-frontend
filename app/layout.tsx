@@ -16,6 +16,7 @@ import { Toaster } from "sonner";
 import { Suspense } from "react";
 import TopProgressBar from "@/components/ui/TopProgressBar";
 import { ThemeProvider } from "next-themes";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import CommandPalette from "@/components/ui/CommandPalette";
 
 const geistSans = Geist({
@@ -73,7 +74,7 @@ export default function RootLayout({
         }}
       />
       <body className="min-h-full flex flex-col">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem storageKey="trustlink-theme">
+        <ThemeProvider>
         <Suspense fallback={null}>
           <TopProgressBar />
         </Suspense>
