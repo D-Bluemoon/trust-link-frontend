@@ -35,7 +35,6 @@
     "react-i18next": "^17.0.8",
     "recharts": "^3.8.1",
     "sonner": "^2.0.7",
-    "stellar-sdk": "^13.3.0",
     "swr": "^2.4.1"
   },
   "devDependencies": {
